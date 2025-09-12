@@ -5,7 +5,8 @@
         "php": "^8.0",
         "bramus/router": "^1.6",
         "twig/twig": "^3.0",
-        "vlucas/phpdotenv": "^5.5"
+        "vlucas/phpdotenv": "^5.5",
+        "ezyang/htmlpurifier": "^4.16"
     },
     "require-dev": {
         "phpstan/phpstan": "^1.10"

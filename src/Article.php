@@ -7,10 +7,12 @@ use PDO;
 class Article
 {
     private PDO $db;
+    private HtmlSanitizer $sanitizer;
     
-    public function __construct(Database $database)
+    public function __construct(Database $database, ?HtmlSanitizer $sanitizer = null)
     {
         $this->db = $database->get_connection();
+        $this->sanitizer = $sanitizer ?? new HtmlSanitizer();
     }
     
     /**
@@ -45,8 +47,9 @@ class Article
     
     public function create_article(string $title, string $content): bool
     {
+        $sanitized_content = $this->sanitizer->sanitize($content);
         $stmt = $this->db->prepare("INSERT INTO articles (title, content) VALUES (?, ?)");
-        return $stmt->execute([$title, $content]);
+        return $stmt->execute([trim($title), $sanitized_content]);
     }
     
     public function generate_article_link(string $title): string
@@ -56,13 +59,24 @@ class Article
     
     public function update_article(int $id, string $title, string $content): bool
     {
+        $sanitized_content = $this->sanitizer->sanitize($content);
         $stmt = $this->db->prepare("UPDATE articles SET title = ?, content = ? WHERE id = ?");
-        return $stmt->execute([$title, $content, $id]);
+        return $stmt->execute([trim($title), $sanitized_content, $id]);
     }
     
     public function delete_article(int $id): bool
     {
         $stmt = $this->db->prepare("DELETE FROM articles WHERE id = ?");
         return $stmt->execute([$id]);
+    }
+    
+    public function get_article_preview(string $content, int $length = 200): string
+    {
+        return $this->sanitizer->getTextPreview($content, $length);
+    }
+    
+    public function sanitize_content(string $content): string
+    {
+        return $this->sanitizer->sanitize($content);
     }
 }

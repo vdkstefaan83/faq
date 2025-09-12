@@ -35,12 +35,8 @@
         <!-- Article Content -->
         <div class="px-8 py-12">
             <div class="prose prose-lg prose-primary max-w-none">
-                <div class="text-gray-700 leading-relaxed text-lg space-y-6">
-                    {% for paragraph in article.content|split('\n') %}
-                        {% if paragraph|trim %}
-                            <p class="mb-4">{{ paragraph|nl2br }}</p>
-                        {% endif %}
-                    {% endfor %}
+                <div class="text-gray-700 leading-relaxed text-lg">
+                    {{ article.content|raw }}
                 </div>
             </div>
         </div>
