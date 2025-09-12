@@ -225,6 +225,61 @@ $router->post('/admin', function() use ($twig, $article_model, $base_url, $auth)
     ]);
 });
 
+$router->get('/admin/edit-article/(\d+)', function($id) use ($twig, $article_model, $auth) {
+    $auth->require_auth();
+    
+    $article = $article_model->get_article_by_id((int)$id);
+    if (!$article) {
+        header('Location: /admin');
+        return;
+    }
+    
+    echo $twig->render('admin/edit_article.html.twig', [
+        'article' => $article
+    ]);
+});
+
+$router->post('/admin/edit-article/(\d+)', function($id) use ($twig, $article_model, $auth) {
+    $auth->require_auth();
+    
+    $article = $article_model->get_article_by_id((int)$id);
+    if (!$article) {
+        header('Location: /admin');
+        return;
+    }
+    
+    $title = $_POST['title'] ?? '';
+    $content = $_POST['content'] ?? '';
+    
+    if (!empty($title) && !empty($content)) {
+        if ($article_model->update_article((int)$id, $title, $content)) {
+            $updated_article = $article_model->get_article_by_id((int)$id);
+            echo $twig->render('admin/edit_article.html.twig', [
+                'article' => $updated_article,
+                'success_message' => 'Article updated successfully!'
+            ]);
+            return;
+        }
+    }
+    
+    echo $twig->render('admin/edit_article.html.twig', [
+        'article' => $article,
+        'error_message' => 'Failed to update article. Please try again.'
+    ]);
+});
+
+$router->post('/admin/delete-article', function() use ($article_model, $auth) {
+    $auth->require_auth();
+    
+    $article_id = $_POST['article_id'] ?? '';
+    
+    if (!empty($article_id) && $article_model->delete_article((int)$article_id)) {
+        header('Location: /admin?deleted=1');
+    } else {
+        header('Location: /admin?error=delete_failed');
+    }
+});
+
 $router->get('/search\.php', function() use ($twig, $article_model) {
     $search_term = $_GET['search'] ?? '';
     

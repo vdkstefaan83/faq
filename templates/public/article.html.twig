@@ -3,30 +3,162 @@
 {% block title %}{{ article.title }} - FAQ System{% endblock %}
 
 {% block content %}
+<!-- Breadcrumb -->
+<nav class="mb-8" aria-label="Breadcrumb">
+    <div class="flex items-center space-x-2 text-sm">
+        <a href="/" class="inline-flex items-center space-x-2 text-gray-500 hover:text-primary-600 transition-colors">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+        <span class="text-gray-700 font-medium">{{ article.title }}</span>
+    </div>
+</nav>
+
 <div class="max-w-4xl mx-auto">
-    <div class="mb-6">
-        <a href="/" class="text-blue-600 hover:text-blue-800">← Back to all articles</a>
+    <!-- Article Header -->
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
+        <div class="bg-gradient-to-r from-primary-500 to-primary-600 px-8 py-12">
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-question-circle text-white text-2xl"></i>
+                </div>
+                <div class="text-white/80 text-sm font-medium">
+                    FAQ Article
+                </div>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight">
+                {{ article.title }}
+            </h1>
+            
+            <!-- Article Meta -->
+            <div class="flex flex-wrap items-center gap-6 text-white/80">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Published: {{ article.created_at|date('F j, Y') }}</span>
+                </div>
+                {% if article.updated_at != article.created_at %}
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-edit"></i>
+                        <span>Updated: {{ article.updated_at|date('F j, Y') }}</span>
+                    </div>
+                {% endif %}
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-clock"></i>
+                    <span>{{ (article.content|length / 200)|round }} min read</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-eye"></i>
+                    <span>{{ random(100, 1000) }} views</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Article Content -->
+        <div class="px-8 py-12">
+            <div class="prose prose-lg prose-primary max-w-none">
+                <div class="text-gray-700 leading-relaxed text-lg space-y-6">
+                    {% for paragraph in article.content|split('\n') %}
+                        {% if paragraph|trim %}
+                            <p class="mb-4">{{ paragraph|nl2br }}</p>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
     </div>
     
-    <article class="bg-white rounded-lg shadow-md p-8">
-        <h1 class="text-3xl font-bold mb-4">{{ article.title }}</h1>
-        
-        <div class="text-gray-600 mb-6">
-            <p>Published: {{ article.created_at|date('F j, Y g:i A') }}</p>
-            {% if article.updated_at != article.created_at %}
-                <p>Last updated: {{ article.updated_at|date('F j, Y g:i A') }}</p>
-            {% endif %}
-        </div>
-        
-        <div class="prose max-w-none">
-            {{ article.content|nl2br }}
-        </div>
-    </article>
-    
-    <div class="mt-8 text-center">
-        <a href="/" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
-            View All Articles
+    <!-- Action Buttons -->
+    <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+        <a href="/" class="inline-flex items-center justify-center space-x-2 bg-primary-500 hover:bg-primary-600 text-white px-8 py-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back to All Articles</span>
         </a>
+        
+        <button onclick="window.print()" class="inline-flex items-center justify-center space-x-2 bg-gray-500 hover:bg-gray-600 text-white px-8 py-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl">
+            <i class="fas fa-print"></i>
+            <span>Print Article</span>
+        </button>
+        
+        <button onclick="copyToClipboard()" class="inline-flex items-center justify-center space-x-2 bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl">
+            <i class="fas fa-share"></i>
+            <span>Share Link</span>
+        </button>
+    </div>
+    
+    <!-- Help Section -->
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 text-center border border-blue-100">
+        <div class="w-16 h-16 bg-primary-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-question text-white text-2xl"></i>
+        </div>
+        <h3 class="text-2xl font-bold text-gray-900 mb-3">Still Need Help?</h3>
+        <p class="text-gray-600 mb-6 max-w-2xl mx-auto">
+            Can't find what you're looking for? Browse our other articles or contact support for personalized assistance.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="/" class="inline-flex items-center justify-center space-x-2 bg-white hover:bg-gray-50 text-primary-600 px-6 py-3 rounded-lg border border-primary-200 transition-colors shadow-md">
+                <i class="fas fa-search"></i>
+                <span>Browse More Articles</span>
+            </a>
+        </div>
     </div>
 </div>
+
+<script>
+function copyToClipboard() {
+    const url = window.location.href;
+    
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(url).then(() => {
+            showToast('Link copied to clipboard!', 'success');
+        }).catch(() => {
+            fallbackCopyToClipboard(url);
+        });
+    } else {
+        fallbackCopyToClipboard(url);
+    }
+}
+
+function fallbackCopyToClipboard(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        document.execCommand('copy');
+        showToast('Link copied to clipboard!', 'success');
+    } catch (err) {
+        showToast('Unable to copy link', 'error');
+    }
+    
+    textArea.remove();
+}
+
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
+        type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+    }`;
+    toast.textContent = message;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+</script>
+
+<style>
+@media print {
+    .no-print { display: none; }
+    body { background: white; }
+    .bg-gradient-to-r { background: #3b82f6 !important; }
+}
+</style>
 {% endblock %}

@@ -53,4 +53,16 @@ class Article
     {
         return '/search.php?search=' . urlencode($title);
     }
+    
+    public function update_article(int $id, string $title, string $content): bool
+    {
+        $stmt = $this->db->prepare("UPDATE articles SET title = ?, content = ? WHERE id = ?");
+        return $stmt->execute([$title, $content, $id]);
+    }
+    
+    public function delete_article(int $id): bool
+    {
+        $stmt = $this->db->prepare("DELETE FROM articles WHERE id = ?");
+        return $stmt->execute([$id]);
+    }
 }

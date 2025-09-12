@@ -5,25 +5,97 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}FAQ System{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-gray-100 min-h-screen">
-    <nav class="bg-blue-600 text-white p-4">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold">FAQ System</h1>
-            <div class="space-x-4 flex items-center">
-                <a href="/" class="hover:underline">Home</a>
-                {% if current_user %}
-                    <span class="text-blue-200">Welcome, {{ current_user }}</span>
-                    <a href="/admin/logout" class="hover:underline">Logout</a>
-                {% else %}
-                    <a href="/admin" class="hover:underline">Admin</a>
-                {% endif %}
+<body class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen font-sans antialiased">
+    <!-- Header -->
+    <header class="bg-white shadow-lg border-b border-gray-100">
+        <nav class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-question-circle text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800">FAQ System</h1>
+                        <p class="text-sm text-gray-500">Knowledge Base</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-6">
+                    <a href="/" class="text-gray-600 hover:text-primary-600 transition-colors duration-200 flex items-center space-x-1">
+                        <i class="fas fa-home text-sm"></i>
+                        <span>Home</span>
+                    </a>
+                    
+                    {% if current_user %}
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-2 px-3 py-2 bg-primary-50 rounded-lg">
+                                <i class="fas fa-user-circle text-primary-600"></i>
+                                <span class="text-primary-700 font-medium">{{ current_user }}</span>
+                            </div>
+                            <a href="/admin" class="text-gray-600 hover:text-primary-600 transition-colors duration-200 flex items-center space-x-1">
+                                <i class="fas fa-cog text-sm"></i>
+                                <span>Dashboard</span>
+                            </a>
+                            <a href="/admin/logout" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-1">
+                                <i class="fas fa-sign-out-alt text-sm"></i>
+                                <span>Logout</span>
+                            </a>
+                        </div>
+                    {% else %}
+                        <a href="/admin" class="bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2 shadow-md">
+                            <i class="fas fa-lock text-sm"></i>
+                            <span>Admin Login</span>
+                        </a>
+                    {% endif %}
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
+    </header>
     
-    <main class="container mx-auto py-8 px-4">
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
         {% block content %}{% endblock %}
     </main>
+    
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-16">
+        <div class="container mx-auto px-4 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center space-x-3 mb-4 md:mb-0">
+                    <div class="w-8 h-8 bg-gradient-to-r from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-question-circle text-white text-sm"></i>
+                    </div>
+                    <span class="text-gray-600 font-medium">FAQ System</span>
+                </div>
+                <p class="text-gray-500 text-sm">
+                    © {{ "now"|date("Y") }} FAQ System. Built with PHP & TailwindCSS.
+                </p>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>

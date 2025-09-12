@@ -3,73 +3,309 @@
 {% block title %}Admin Dashboard - FAQ System{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto">
-    <h1 class="text-3xl font-bold mb-8">Admin Dashboard</h1>
-    
-    {% if success_message %}
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-            {{ success_message }}
-            {% if article_link %}
-                <div class="mt-2">
-                    <strong>Article Link:</strong> 
-                    <input type="text" value="{{ base_url }}{{ article_link }}" readonly class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-1 w-full mt-1" onclick="this.select()">
+<!-- Dashboard Header -->
+<div class="mb-8">
+    <div class="bg-gradient-to-r from-primary-600 to-primary-700 rounded-2xl shadow-xl p-8 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl md:text-4xl font-bold mb-2">Admin Dashboard</h1>
+                <p class="text-primary-100 text-lg">Manage your FAQ system content and settings</p>
+            </div>
+            <div class="hidden md:block">
+                <div class="w-20 h-20 bg-white/10 rounded-2xl flex items-center justify-center">
+                    <i class="fas fa-cogs text-4xl"></i>
                 </div>
-            {% endif %}
+            </div>
         </div>
-    {% endif %}
-    
-    <div class="mb-8 flex flex-wrap gap-4">
-        <a href="/admin/change-password" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors">
-            Change Password
-        </a>
-        <a href="/admin/create-user" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">
-            Create Admin User
-        </a>
-    </div>
-    
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-2xl font-semibold mb-4">Create New Article</h2>
-        
-        <form method="POST" class="space-y-4">
-            <div>
-                <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Article Title</label>
-                <input type="text" id="title" name="title" required 
-                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            
-            <div>
-                <label for="content" class="block text-sm font-medium text-gray-700 mb-1">Article Content</label>
-                <textarea id="content" name="content" rows="10" required
-                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-            </div>
-            
-            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                Create Article
-            </button>
-        </form>
-    </div>
-    
-    <div class="mt-8 bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-2xl font-semibold mb-4">Existing Articles</h2>
-        
-        {% if articles %}
-            <div class="space-y-3">
-                {% for article in articles %}
-                    <div class="border border-gray-200 rounded-lg p-4">
-                        <h3 class="font-semibold text-lg">{{ article.title }}</h3>
-                        <p class="text-gray-600 text-sm">Created: {{ article.created_at }}</p>
-                        <p class="text-gray-800 mt-2">{{ article.content|slice(0, 150) }}{% if article.content|length > 150 %}...{% endif %}</p>
-                        <div class="mt-2">
-                            <span class="text-sm font-medium">Link: </span>
-                            <input type="text" value="{{ base_url }}/search.php?search={{ article.title|url_encode }}" readonly 
-                                   class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded p-1 w-64" onclick="this.select()">
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <p class="text-gray-500">No articles found.</p>
-        {% endif %}
     </div>
 </div>
+
+<!-- Messages -->
+{% set deleted = app.request.query.get('deleted') %}
+{% set error_param = app.request.query.get('error') %}
+
+{% if success_message or deleted %}
+    <div class="mb-8 bg-green-50 border border-green-200 rounded-xl p-6">
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <div class="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-check text-white"></i>
+                </div>
+            </div>
+            <div class="ml-4 flex-1">
+                <h3 class="text-green-800 font-semibold mb-2">Success!</h3>
+                <p class="text-green-700 mb-3">
+                    {% if deleted %}
+                        Article deleted successfully!
+                    {% else %}
+                        {{ success_message }}
+                    {% endif %}
+                </p>
+                {% if article_link %}
+                    <div class="bg-white rounded-lg p-3 border border-green-200">
+                        <label class="block text-sm font-medium text-green-800 mb-1">Article Link:</label>
+                        <div class="flex">
+                            <input type="text" value="{{ base_url }}{{ article_link }}" readonly 
+                                   class="flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg px-3 py-2 focus:outline-none" 
+                                   onclick="this.select()">
+                            <button onclick="copyArticleLink('{{ base_url }}{{ article_link }}')" 
+                                    class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-r-lg transition-colors">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{% if error_param %}
+    <div class="mb-8 bg-red-50 border border-red-200 rounded-xl p-6">
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <div class="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-exclamation-triangle text-white"></i>
+                </div>
+            </div>
+            <div class="ml-4">
+                <h3 class="text-red-800 font-semibold mb-2">Error!</h3>
+                <p class="text-red-700">
+                    {% if error_param == 'delete_failed' %}
+                        Failed to delete article. Please try again.
+                    {% else %}
+                        An error occurred. Please try again.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<!-- Quick Actions -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <a href="/admin/change-password" class="group bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 p-6 border border-gray-100">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-gray-100 group-hover:bg-gray-500 rounded-xl flex items-center justify-center transition-colors">
+                <i class="fas fa-key text-gray-600 group-hover:text-white"></i>
+            </div>
+            <div class="ml-4">
+                <h3 class="font-semibold text-gray-900">Change Password</h3>
+                <p class="text-gray-500 text-sm">Update your password</p>
+            </div>
+        </div>
+    </a>
+    
+    <a href="/admin/create-user" class="group bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 p-6 border border-gray-100">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-green-100 group-hover:bg-green-500 rounded-xl flex items-center justify-center transition-colors">
+                <i class="fas fa-user-plus text-green-600 group-hover:text-white"></i>
+            </div>
+            <div class="ml-4">
+                <h3 class="font-semibold text-gray-900">Create Admin</h3>
+                <p class="text-gray-500 text-sm">Add new admin user</p>
+            </div>
+        </div>
+    </a>
+    
+    <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                <i class="fas fa-file-alt text-blue-600"></i>
+            </div>
+            <div class="ml-4">
+                <h3 class="font-semibold text-gray-900">{{ articles|length }}</h3>
+                <p class="text-gray-500 text-sm">Total Articles</p>
+            </div>
+        </div>
+    </div>
+    
+    <a href="/" target="_blank" class="group bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 p-6 border border-gray-100">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-purple-100 group-hover:bg-purple-500 rounded-xl flex items-center justify-center transition-colors">
+                <i class="fas fa-external-link-alt text-purple-600 group-hover:text-white"></i>
+            </div>
+            <div class="ml-4">
+                <h3 class="font-semibold text-gray-900">View Site</h3>
+                <p class="text-gray-500 text-sm">Open public site</p>
+            </div>
+        </div>
+    </a>
+</div>
+
+<!-- Create Article Form -->
+<div class="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-gray-100">
+    <div class="flex items-center space-x-3 mb-6">
+        <div class="w-12 h-12 bg-primary-500 rounded-xl flex items-center justify-center">
+            <i class="fas fa-plus text-white text-xl"></i>
+        </div>
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">Create New Article</h2>
+            <p class="text-gray-600">Add a new FAQ article to your knowledge base</p>
+        </div>
+    </div>
+    
+    <form method="POST" class="space-y-6">
+        <div>
+            <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">Article Title</label>
+            <input type="text" id="title" name="title" required 
+                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                   placeholder="Enter article title...">
+        </div>
+        
+        <div>
+            <label for="content" class="block text-sm font-semibold text-gray-700 mb-2">Article Content</label>
+            <textarea id="content" name="content" rows="12" required
+                     class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-vertical"
+                     placeholder="Write your article content here..."></textarea>
+            <p class="text-sm text-gray-500 mt-2">Use line breaks to separate paragraphs</p>
+        </div>
+        
+        <div class="flex justify-end">
+            <button type="submit" class="inline-flex items-center space-x-2 bg-primary-500 hover:bg-primary-600 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                <i class="fas fa-plus"></i>
+                <span>Create Article</span>
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Existing Articles -->
+<div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+    <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center space-x-3">
+            <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+                <i class="fas fa-list text-white text-xl"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900">Existing Articles</h2>
+                <p class="text-gray-600">Manage your published FAQ articles</p>
+            </div>
+        </div>
+        <div class="text-sm text-gray-500">
+            {{ articles|length }} article{{ articles|length != 1 ? 's' : '' }}
+        </div>
+    </div>
+    
+    {% if articles %}
+        <div class="space-y-6">
+            {% for article in articles %}
+                <div class="border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">{{ article.title }}</h3>
+                            <div class="flex items-center space-x-4 text-sm text-gray-500 mb-3">
+                                <div class="flex items-center space-x-1">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>{{ article.created_at|date('M j, Y') }}</span>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <i class="fas fa-clock"></i>
+                                    <span>{{ (article.content|length / 200)|round }} min read</span>
+                                </div>
+                            </div>
+                            <p class="text-gray-700 leading-relaxed mb-4">
+                                {{ article.content|slice(0, 200) }}{% if article.content|length > 200 %}...{% endif %}
+                            </p>
+                        </div>
+                        <div class="ml-6 flex flex-col space-y-2">
+                            <a href="/admin/edit-article/{{ article.id }}" 
+                               class="inline-flex items-center space-x-1 text-blue-600 hover:text-blue-700 font-medium">
+                                <i class="fas fa-edit text-sm"></i>
+                                <span>Edit</span>
+                            </a>
+                            <a href="/search.php?search={{ article.title|url_encode }}" target="_blank" 
+                               class="inline-flex items-center space-x-1 text-green-600 hover:text-green-700 font-medium">
+                                <i class="fas fa-external-link-alt text-sm"></i>
+                                <span>View</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium text-gray-700">Article Link:</span>
+                            <button onclick="copyToClipboard('{{ base_url }}/search.php?search={{ article.title|url_encode }}')" 
+                                    class="text-sm text-primary-600 hover:text-primary-700 font-medium">
+                                <i class="fas fa-copy mr-1"></i>Copy Link
+                            </button>
+                        </div>
+                        <input type="text" value="{{ base_url }}/search.php?search={{ article.title|url_encode }}" readonly 
+                               class="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg px-3 py-2 mt-2 focus:outline-none" 
+                               onclick="this.select()">
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-12">
+            <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-file-alt text-gray-400 text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">No Articles Yet</h3>
+            <p class="text-gray-600">Create your first FAQ article using the form above</p>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function copyArticleLink(url) {
+    copyToClipboard(url);
+}
+
+function copyToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => {
+            showToast('Link copied to clipboard!', 'success');
+        }).catch(() => {
+            fallbackCopyToClipboard(text);
+        });
+    } else {
+        fallbackCopyToClipboard(text);
+    }
+}
+
+function fallbackCopyToClipboard(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        document.execCommand('copy');
+        showToast('Link copied to clipboard!', 'success');
+    } catch (err) {
+        showToast('Unable to copy link', 'error');
+    }
+    
+    textArea.remove();
+}
+
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 px-6 py-3 rounded-xl shadow-lg z-50 transform transition-all duration-300 ${
+        type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+    }`;
+    toast.innerHTML = `
+        <div class="flex items-center space-x-2">
+            <i class="fas ${type === 'success' ? 'fa-check' : 'fa-exclamation-triangle'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            toast.remove();
+        }, 300);
+    }, 3000);
+}
+</script>
 {% endblock %}
