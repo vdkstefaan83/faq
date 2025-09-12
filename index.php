@@ -25,6 +25,7 @@ $auth = new Auth($database);
 $base_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'];
 $twig->addGlobal('base_url', $base_url);
 $twig->addGlobal('current_user', $auth->get_current_user());
+$twig->addGlobal('tinymce_api_key', $_ENV['TINYMCE_API_KEY'] ?? 'no-api-key');
 
 $auth->cleanup_expired_sessions();
 
