@@ -78,15 +78,11 @@ class HtmlSanitizer
         $html = preg_replace('/<\\/?o:p[^>]*>/i', '', $html);
         
         // Convert Word's special characters
-        $replacements = [
-            '–' => '-',
-            '—' => '-', 
-            '"' => '"',
-            '"' => '"',
-            ''' => "'",
-            ''' => "'"
-        ];
-        $html = str_replace(array_keys($replacements), array_values($replacements), $html);
+        $html = str_replace(
+            ["\u{2013}", "\u{2014}", "\u{201C}", "\u{201D}", "\u{2018}", "\u{2019}"],
+            ['-', '-', '"', '"', "'", "'"],
+            $html
+        );
         
         // Clean up excessive whitespace
         $html = preg_replace('/\\s+/', ' ', $html);
