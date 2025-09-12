@@ -8,11 +8,12 @@ function initTinyMCE(selector, options) {
         menubar: false,
         branding: false,
         promotion: false,
+        readonly: false,
+        disabled: false,
         plugins: [
-            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
+            'advlist', 'autolink', 'lists', 'link', 'charmap',
             'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-            'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount',
-            'paste'
+            'insertdatetime', 'table', 'help', 'wordcount'
         ],
         toolbar: 'undo redo | blocks | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link | wordcleanup removeformat | code fullscreen | help',
         content_style: `
@@ -72,63 +73,17 @@ function initTinyMCE(selector, options) {
             }
         `,
         
-        // Word paste cleanup configuration
-        paste_data_images: false,
-        paste_word_valid_elements: 'b,strong,i,em,h1,h2,h3,h4,h5,h6,p,ol,ul,li,a[href],table,tr,td,th,tbody,thead',
-        paste_retain_style_properties: 'color font-size font-family font-weight text-decoration text-align',
-        paste_remove_styles_if_webkit: true,
-        paste_merge_formats: true,
-        paste_convert_word_fake_lists: true,
-        paste_remove_spans: true,
-        paste_tab_spaces: 4,
-        
-        // Advanced Word cleanup
-        paste_preprocess: function(plugin, args) {
-            let content = args.content;
-            
-            // Remove Word XML namespace declarations
-            content = content.replace(/<\?xml[^>]*>/g, '');
-            content = content.replace(/<\/?[a-z]+:[^>]*>/g, '');
-            
-            // Remove Word style and class attributes
-            content = content.replace(/\s*style\s*=\s*["'][^"']*["'][^>]*/gi, '');
-            content = content.replace(/\s*class\s*=\s*["'][^"']*["'][^>]*/gi, '');
-            
-            // Remove Word font tags
-            content = content.replace(/<\/?font[^>]*>/gi, '');
-            
-            // Remove Word span tags
-            content = content.replace(/<span[^>]*>([^<]*)<\/span>/gi, '$1');
-            
-            // Remove Word div tags and replace with p
-            content = content.replace(/<div[^>]*>/gi, '<p>');
-            content = content.replace(/<\/div>/gi, '</p>');
-            
-            // Remove empty paragraphs and repeated whitespace
-            content = content.replace(/<p[^>]*>\s*<\/p>/gi, '');
-            content = content.replace(/\s+/g, ' ');
-            
-            // Remove Word o:p tags
-            content = content.replace(/<\/?o:p[^>]*>/gi, '');
-            
-            // Remove Word conditional comments
-            content = content.replace(/<!--\[if[\s\S]*?<!\[endif\]-->/gi, '');
-            
-            args.content = content;
+        // Basic content filtering
+        valid_elements: 'p,br,strong,b,em,i,u,s,h1,h2,h3,h4,h5,h6,ul,ol,li,blockquote,a[href|title|target],table,tr,td,th,tbody,thead,code,pre',
+        valid_styles: {
+            '*': 'color,font-size,font-weight,text-decoration,text-align'
         },
         
-        paste_postprocess: function(plugin, args) {
-            let content = args.node.innerHTML;
-            
-            // Remove any remaining empty elements
-            content = content.replace(/<([^>]+)>\s*<\/\1>/gi, '');
-            
-            // Clean up nested paragraphs
-            content = content.replace(/<p[^>]*>\s*<p[^>]*>/gi, '<p>');
-            content = content.replace(/<\/p>\s*<\/p>/gi, '</p>');
-            
-            args.node.innerHTML = content;
-        },
+        // Content processing
+        cleanup: true,
+        convert_urls: false,
+        remove_script_host: false,
+        relative_urls: false,
         
         // Custom setup
         setup: function(editor) {
@@ -147,13 +102,9 @@ function initTinyMCE(selector, options) {
                 }
             });
             
-            // Monitor paste events
-            editor.on('paste', function(e) {
-                setTimeout(function() {
-                    if (typeof showToast === 'function') {
-                        showToast('Content pasted and cleaned!', 'success');
-                    }
-                }, 100);
+            // Basic content change monitoring
+            editor.on('change', function() {
+                // Content changed - can add save functionality here
             });
         },
         
