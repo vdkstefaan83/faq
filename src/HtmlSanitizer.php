@@ -77,9 +77,9 @@ class HtmlSanitizer
         // Remove Word's o:p tags
         $html = preg_replace('/<\\/?o:p[^>]*>/i', '', $html);
         
-        // Convert Word's special characters
+        // Convert Word's special characters using hex codes
         $html = str_replace(
-            ["\u{2013}", "\u{2014}", "\u{201C}", "\u{201D}", "\u{2018}", "\u{2019}"],
+            [chr(0xE2).chr(0x80).chr(0x93), chr(0xE2).chr(0x80).chr(0x94), chr(0xE2).chr(0x80).chr(0x9C), chr(0xE2).chr(0x80).chr(0x9D), chr(0xE2).chr(0x80).chr(0x98), chr(0xE2).chr(0x80).chr(0x99)],
             ['-', '-', '"', '"', "'", "'"],
             $html
         );

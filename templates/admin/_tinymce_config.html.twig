@@ -1,5 +1,7 @@
 <script>
-function initTinyMCE(selector, options = {}) {
+function initTinyMCE(selector, options) {
+    options = options || {};
+    
     const defaultOptions = {
         selector: selector,
         height: 400,
@@ -12,7 +14,7 @@ function initTinyMCE(selector, options = {}) {
             'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount',
             'paste'
         ],
-        toolbar: 'undo redo | blocks | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help',
+        toolbar: 'undo redo | blocks | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link | wordcleanup removeformat | code fullscreen | help',
         content_style: `
             body { 
                 font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
@@ -72,8 +74,8 @@ function initTinyMCE(selector, options = {}) {
         
         // Word paste cleanup configuration
         paste_data_images: false,
-        paste_word_valid_elements: "b,strong,i,em,h1,h2,h3,h4,h5,h6,p,ol,ul,li,a[href],table,tr,td,th,tbody,thead",
-        paste_retain_style_properties: "color font-size font-family font-weight text-decoration text-align",
+        paste_word_valid_elements: 'b,strong,i,em,h1,h2,h3,h4,h5,h6,p,ol,ul,li,a[href],table,tr,td,th,tbody,thead',
+        paste_retain_style_properties: 'color font-size font-family font-weight text-decoration text-align',
         paste_remove_styles_if_webkit: true,
         paste_merge_formats: true,
         paste_convert_word_fake_lists: true,
@@ -82,54 +84,48 @@ function initTinyMCE(selector, options = {}) {
         
         // Advanced Word cleanup
         paste_preprocess: function(plugin, args) {
-            // Remove Word-specific tags and attributes
             let content = args.content;
             
-            // Remove Word's XML namespace declarations
-            content = content.replace(/<\\?xml[^>]*>/g, '');
-            content = content.replace(/<\\/?[a-z]+:[^>]*>/g, '');
+            // Remove Word XML namespace declarations
+            content = content.replace(/<\?xml[^>]*>/g, '');
+            content = content.replace(/<\/?[a-z]+:[^>]*>/g, '');
             
-            // Remove Word's style and class attributes
-            content = content.replace(/\\s*style\\s*=\\s*["\'][^"\']*["\'][^>]*/gi, '');
-            content = content.replace(/\\s*class\\s*=\\s*["\'][^"\']*["\'][^>]*/gi, '');
+            // Remove Word style and class attributes
+            content = content.replace(/\s*style\s*=\s*["'][^"']*["'][^>]*/gi, '');
+            content = content.replace(/\s*class\s*=\s*["'][^"']*["'][^>]*/gi, '');
             
-            // Remove Word's font tags
-            content = content.replace(/<\\/?font[^>]*>/gi, '');
+            // Remove Word font tags
+            content = content.replace(/<\/?font[^>]*>/gi, '');
             
-            // Remove Word's span tags (unless they have meaningful content)
-            content = content.replace(/<span[^>]*>([^<]*)<\\/span>/gi, '$1');
+            // Remove Word span tags
+            content = content.replace(/<span[^>]*>([^<]*)<\/span>/gi, '$1');
             
-            // Remove Word's div tags and replace with p
+            // Remove Word div tags and replace with p
             content = content.replace(/<div[^>]*>/gi, '<p>');
-            content = content.replace(/<\\/div>/gi, '</p>');
+            content = content.replace(/<\/div>/gi, '</p>');
             
             // Remove empty paragraphs and repeated whitespace
-            content = content.replace(/<p[^>]*>\\s*<\\/p>/gi, '');
-            content = content.replace(/\\s+/g, ' ');
+            content = content.replace(/<p[^>]*>\s*<\/p>/gi, '');
+            content = content.replace(/\s+/g, ' ');
             
-            // Remove Word's o:p tags
-            content = content.replace(/<\\/?o:p[^>]*>/gi, '');
+            // Remove Word o:p tags
+            content = content.replace(/<\/?o:p[^>]*>/gi, '');
             
-            // Remove Word's conditional comments
-            content = content.replace(/<!--\\[if[\\s\\S]*?<!\\[endif\\]-->/gi, '');
-            
-            // Convert Word's list format
-            content = content.replace(/<p[^>]*>\\s*·\\s*/gi, '<li>');
-            content = content.replace(/^\\s*\\d+\\.\\s*/gm, '');
+            // Remove Word conditional comments
+            content = content.replace(/<!--\[if[\s\S]*?<!\[endif\]-->/gi, '');
             
             args.content = content;
         },
         
         paste_postprocess: function(plugin, args) {
-            // Additional cleanup after paste
             let content = args.node.innerHTML;
             
             // Remove any remaining empty elements
-            content = content.replace(/<([^>]+)>\\s*<\\/\\1>/gi, '');
+            content = content.replace(/<([^>]+)>\s*<\/\1>/gi, '');
             
             // Clean up nested paragraphs
-            content = content.replace(/<p[^>]*>\\s*<p[^>]*>/gi, '<p>');
-            content = content.replace(/<\\/p>\\s*<\\/p>/gi, '</p>');
+            content = content.replace(/<p[^>]*>\s*<p[^>]*>/gi, '<p>');
+            content = content.replace(/<\/p>\s*<\/p>/gi, '</p>');
             
             args.node.innerHTML = content;
         },
@@ -145,91 +141,89 @@ function initTinyMCE(selector, options = {}) {
                     const content = editor.getContent();
                     const cleanedContent = cleanWordContent(content);
                     editor.setContent(cleanedContent);
-                    editor.windowManager.alert('Content cleaned from Word formatting!');
+                    if (typeof showToast === 'function') {
+                        showToast('Content cleaned from Word formatting!', 'success');
+                    }
                 }
             });
             
             // Monitor paste events
             editor.on('paste', function(e) {
                 setTimeout(function() {
-                    showToast('Content pasted and cleaned!', 'success');
+                    if (typeof showToast === 'function') {
+                        showToast('Content pasted and cleaned!', 'success');
+                    }
                 }, 100);
             });
         },
         
-        // Additional toolbar with Word cleanup
-        toolbar: 'undo redo | blocks | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link | wordcleanup removeformat | code fullscreen | help',
-        
-        block_formats: 'Paragraph=p; Heading 1=h1; Heading 2=h2; Heading 3=h3; Heading 4=h4; Quote=blockquote',
-        
-        // Merge with custom options
-        ...options
+        block_formats: 'Paragraph=p; Heading 1=h1; Heading 2=h2; Heading 3=h3; Heading 4=h4; Quote=blockquote'
     };
     
-    return tinymce.init(defaultOptions);
+    // Merge with custom options
+    const finalOptions = Object.assign({}, defaultOptions, options);
+    
+    return tinymce.init(finalOptions);
 }
 
 function cleanWordContent(content) {
-    // Comprehensive Word content cleanup function
     let cleaned = content;
     
     // Remove Word XML and namespace declarations
-    cleaned = cleaned.replace(/<\\?xml[^>]*>/g, '');
-    cleaned = cleaned.replace(/<\\/?[ovwxp]:[^>]*>/g, '');
+    cleaned = cleaned.replace(/<\?xml[^>]*>/g, '');
+    cleaned = cleaned.replace(/<\/?[ovwxp]:[^>]*>/g, '');
     
     // Remove Word-specific attributes
-    cleaned = cleaned.replace(/\\s*(class|style|lang|align|valign|bgcolor)\\s*=\\s*["\'][^"\']*["\'][^>]*/gi, '');
+    cleaned = cleaned.replace(/\s*(class|style|lang|align|valign|bgcolor)\s*=\s*["'][^"']*["'][^>]*/gi, '');
     
     // Remove font tags
-    cleaned = cleaned.replace(/<\\/?font[^>]*>/gi, '');
+    cleaned = cleaned.replace(/<\/?font[^>]*>/gi, '');
     
     // Clean span tags
-    cleaned = cleaned.replace(/<span[^>]*>([^<]*)<\\/span>/gi, '$1');
+    cleaned = cleaned.replace(/<span[^>]*>([^<]*)<\/span>/gi, '$1');
     cleaned = cleaned.replace(/<span[^>]*>/gi, '');
-    cleaned = cleaned.replace(/<\\/span>/gi, '');
+    cleaned = cleaned.replace(/<\/span>/gi, '');
     
     // Convert div to paragraphs
     cleaned = cleaned.replace(/<div[^>]*>/gi, '<p>');
-    cleaned = cleaned.replace(/<\\/div>/gi, '</p>');
+    cleaned = cleaned.replace(/<\/div>/gi, '</p>');
     
-    // Remove Word's paragraph marks and line breaks
-    cleaned = cleaned.replace(/\\r\\n|\\r|\\n/g, ' ');
-    cleaned = cleaned.replace(/\\s{2,}/g, ' ');
+    // Remove Word paragraph marks and line breaks
+    cleaned = cleaned.replace(/\r\n|\r|\n/g, ' ');
+    cleaned = cleaned.replace(/\s{2,}/g, ' ');
     
     // Remove empty elements
-    cleaned = cleaned.replace(/<([^>]+)>\\s*<\\/\\1>/gi, '');
-    cleaned = cleaned.replace(/<p[^>]*>\\s*<\\/p>/gi, '');
+    cleaned = cleaned.replace(/<([^>]+)>\s*<\/\1>/gi, '');
+    cleaned = cleaned.replace(/<p[^>]*>\s*<\/p>/gi, '');
     
     // Clean up Word lists
-    cleaned = cleaned.replace(/<p[^>]*>\\s*·\\s*([^<]*)<\\/p>/gi, '<li>$1</li>');
-    cleaned = cleaned.replace(/(<li>[^<]*<\\/li>)/gi, '<ul>$1</ul>');
-    cleaned = cleaned.replace(/<\\/ul>\\s*<ul>/gi, '');
+    cleaned = cleaned.replace(/<p[^>]*>\s*·\s*([^<]*)<\/p>/gi, '<li>$1</li>');
+    cleaned = cleaned.replace(/(<li>[^<]*<\/li>)/gi, '<ul>$1</ul>');
+    cleaned = cleaned.replace(/<\/ul>\s*<ul>/gi, '');
     
     // Remove Word comments and metadata
-    cleaned = cleaned.replace(/<!--\\[if[\\s\\S]*?<!\\[endif\\]-->/gi, '');
-    cleaned = cleaned.replace(/<\\/?o:p[^>]*>/gi, '');
+    cleaned = cleaned.replace(/<!--\[if[\s\S]*?<!\[endif\]-->/gi, '');
+    cleaned = cleaned.replace(/<\/?o:p[^>]*>/gi, '');
     
     return cleaned.trim();
 }
 
 function showToast(message, type) {
     const toast = document.createElement('div');
-    toast.className = `fixed top-4 right-4 px-6 py-3 rounded-xl shadow-lg z-50 transform transition-all duration-300 ${
-        type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-    }`;
-    toast.innerHTML = `
-        <div class="flex items-center space-x-2">
-            <i class="fas ${type === 'success' ? 'fa-check' : 'fa-exclamation-triangle'}"></i>
-            <span>${message}</span>
-        </div>
-    `;
+    toast.className = 'fixed top-4 right-4 px-6 py-3 rounded-xl shadow-lg z-50 transform transition-all duration-300 ' + 
+        (type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white');
+    
+    toast.innerHTML = '<div class="flex items-center space-x-2">' +
+        '<i class="fas ' + (type === 'success' ? 'fa-check' : 'fa-exclamation-triangle') + '"></i>' +
+        '<span>' + message + '</span>' +
+        '</div>';
     
     document.body.appendChild(toast);
     
-    setTimeout(() => {
+    setTimeout(function() {
         toast.style.opacity = '0';
         toast.style.transform = 'translateX(100%)';
-        setTimeout(() => {
+        setTimeout(function() {
             if (toast.parentNode) {
                 toast.remove();
             }
