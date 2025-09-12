@@ -1,0 +1,25 @@
+# Dependencies
+/vendor/
+
+# Environment variables
+.env
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# PHPStan cache
+phpstan.phar
+.phpstan/
+
+# Composer lock file (optional, uncomment if you don't want to commit it)
+# composer.lock

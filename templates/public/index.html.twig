@@ -1,0 +1,37 @@
+{% extends "base.html.twig" %}
+
+{% block title %}FAQ System{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold mb-8">Frequently Asked Questions</h1>
+    
+    {% if articles %}
+        <div class="grid gap-6">
+            {% for article in articles %}
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <h2 class="text-xl font-semibold mb-3">
+                        <a href="/search.php?search={{ article.title|url_encode }}" class="text-blue-600 hover:text-blue-800">
+                            {{ article.title }}
+                        </a>
+                    </h2>
+                    <p class="text-gray-700 leading-relaxed">
+                        {{ article.content|slice(0, 200) }}{% if article.content|length > 200 %}...{% endif %}
+                    </p>
+                    <div class="mt-4">
+                        <a href="/search.php?search={{ article.title|url_encode }}" 
+                           class="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
+                            Read More
+                        </a>
+                    </div>
+                    <p class="text-gray-500 text-sm mt-3">Published: {{ article.created_at|date('F j, Y') }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="bg-white rounded-lg shadow-md p-8 text-center">
+            <p class="text-gray-500 text-lg">No articles available yet.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

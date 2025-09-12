@@ -1,0 +1,32 @@
+{% extends "base.html.twig" %}
+
+{% block title %}{{ article.title }} - FAQ System{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="mb-6">
+        <a href="/" class="text-blue-600 hover:text-blue-800">← Back to all articles</a>
+    </div>
+    
+    <article class="bg-white rounded-lg shadow-md p-8">
+        <h1 class="text-3xl font-bold mb-4">{{ article.title }}</h1>
+        
+        <div class="text-gray-600 mb-6">
+            <p>Published: {{ article.created_at|date('F j, Y g:i A') }}</p>
+            {% if article.updated_at != article.created_at %}
+                <p>Last updated: {{ article.updated_at|date('F j, Y g:i A') }}</p>
+            {% endif %}
+        </div>
+        
+        <div class="prose max-w-none">
+            {{ article.content|nl2br }}
+        </div>
+    </article>
+    
+    <div class="mt-8 text-center">
+        <a href="/" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+            View All Articles
+        </a>
+    </div>
+</div>
+{% endblock %}

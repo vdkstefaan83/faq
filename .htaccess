@@ -1,0 +1,10 @@
+RewriteEngine On
+
+# Handle /search.php requests
+RewriteCond %{REQUEST_URI} ^/search\.php
+RewriteRule ^.*$ index.php [QSA,L]
+
+# Handle all other requests
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^.*$ index.php [QSA,L]
