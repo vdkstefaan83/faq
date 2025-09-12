@@ -78,7 +78,15 @@ class HtmlSanitizer
         $html = preg_replace('/<\\/?o:p[^>]*>/i', '', $html);
         
         // Convert Word's special characters
-        $html = str_replace(['–', '—', '"', '"', ''', '''], ['-', '-', '"', '"', "'", "'"], $html);
+        $replacements = [
+            '–' => '-',
+            '—' => '-', 
+            '"' => '"',
+            '"' => '"',
+            ''' => "'",
+            ''' => "'"
+        ];
+        $html = str_replace(array_keys($replacements), array_values($replacements), $html);
         
         // Clean up excessive whitespace
         $html = preg_replace('/\\s+/', ' ', $html);
