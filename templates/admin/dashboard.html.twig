@@ -156,7 +156,7 @@
         <div>
             <label for="content" class="block text-sm font-semibold text-gray-700 mb-2">Article Content</label>
             <div class="border border-gray-300 rounded-xl overflow-hidden">
-                <textarea id="content" name="content" required
+                <textarea id="content" name="content"
                          placeholder="Write your article content here... You can paste from Word and formatting will be automatically cleaned."></textarea>
             </div>
             <p class="text-sm text-gray-500 mt-2">
@@ -337,8 +337,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Handle form submission to ensure TinyMCE content is saved
     document.getElementById('create-article-form').addEventListener('submit', function(e) {
+        const titleField = document.getElementById('title');
+        const title = titleField.value.trim();
+
+        // Save TinyMCE content
         if (tinymce.get('content')) {
             tinymce.get('content').save();
+        }
+
+        const content = document.getElementById('content').value.trim();
+
+        // Validate fields
+        if (!title) {
+            e.preventDefault();
+            showToast('Please enter a title for the article', 'error');
+            titleField.focus();
+            return;
+        }
+
+        if (!content) {
+            e.preventDefault();
+            showToast('Please enter content for the article', 'error');
+            if (tinymce.get('content')) {
+                tinymce.get('content').focus();
+            }
+            return;
         }
     });
 });
