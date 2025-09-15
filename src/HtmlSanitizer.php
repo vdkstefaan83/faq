@@ -95,17 +95,15 @@ class HtmlSanitizer
     {
         // Remove empty paragraphs
         $html = preg_replace('/<p[^>]*>\\s*<\\/p>/i', '', $html);
-        
+
         // Clean up nested paragraphs (shouldn't happen but just in case)
         $html = preg_replace('/<p[^>]*>\\s*<p[^>]*>/i', '<p>', $html);
         $html = preg_replace('/<\\/p>\\s*<\\/p>/i', '</p>', $html);
-        
-        // Ensure proper line breaks between block elements
-        $html = preg_replace('/>\\s*</', '>\\n<', $html);
-        
-        // Final whitespace cleanup
+
+        // Final whitespace cleanup - remove any remaining newlines and excessive whitespace
+        $html = preg_replace('/\\s+/', ' ', $html);
         $html = trim($html);
-        
+
         return $html;
     }
     
