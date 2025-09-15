@@ -31,6 +31,12 @@ $auth->cleanup_expired_sessions();
 
 $router->get('/', function() use ($twig, $article_model) {
     $articles = $article_model->get_all_articles();
+
+    // Add preview to each article
+    foreach ($articles as &$article) {
+        $article['preview'] = $article_model->get_article_preview($article['content'], 250);
+    }
+
     echo $twig->render('public/index.html.twig', [
         'articles' => $articles
     ]);
@@ -190,8 +196,14 @@ $router->post('/admin/create-user', function() use ($twig, $auth) {
 
 $router->get('/admin', function() use ($twig, $article_model, $auth) {
     $auth->require_auth();
-    
+
     $articles = $article_model->get_all_articles();
+
+    // Add preview to each article
+    foreach ($articles as &$article) {
+        $article['preview'] = $article_model->get_article_preview($article['content'], 200);
+    }
+
     echo $twig->render('admin/dashboard.html.twig', [
         'articles' => $articles
     ]);
@@ -209,7 +221,12 @@ $router->post('/admin', function() use ($twig, $article_model, $base_url, $auth)
         if ($success) {
             $article_link = $article_model->generate_article_link($title);
             $articles = $article_model->get_all_articles();
-            
+
+            // Add preview to each article
+            foreach ($articles as &$article) {
+                $article['preview'] = $article_model->get_article_preview($article['content'], 200);
+            }
+
             echo $twig->render('admin/dashboard.html.twig', [
                 'articles' => $articles,
                 'success_message' => 'Article created successfully!',
@@ -220,6 +237,12 @@ $router->post('/admin', function() use ($twig, $article_model, $base_url, $auth)
     }
     
     $articles = $article_model->get_all_articles();
+
+    // Add preview to each article
+    foreach ($articles as &$article) {
+        $article['preview'] = $article_model->get_article_preview($article['content'], 200);
+    }
+
     echo $twig->render('admin/dashboard.html.twig', [
         'articles' => $articles,
         'error_message' => 'Failed to create article. Please try again.'
