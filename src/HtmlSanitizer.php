@@ -12,40 +12,25 @@ class HtmlSanitizer
     public function __construct()
     {
         $config = HTMLPurifier_Config::createDefault();
-        
+
         // Configure allowed HTML elements and attributes
-        $config->set('HTML.Allowed', 
-            'p,br,strong,b,em,i,u,s,strike,del,ins,sup,sub,' .
-            'h1,h2,h3,h4,h5,h6,' .
-            'ul,ol,li,' .
-            'blockquote,' .
-            'a[href|title|target],' .
-            'img[src|alt|title|width|height],' .
-            'table,tr,td,th,thead,tbody,tfoot,' .
-            'pre,code,' .
-            'hr'
+        $config->set('HTML.Allowed',
+            'p,br,strong,b,em,i,u,s,h1,h2,h3,h4,h5,h6,ul,ol,li,blockquote,a[href|title],table,tr,td,th,thead,tbody,pre,code,hr'
         );
-        
+
         // Allow safe protocols for links
-        $config->set('URI.AllowedSchemes', ['http', 'https', 'mailto']);
-        
-        // Convert div tags to p tags
-        $config->set('HTML.BlockWrapper', 'p');
-        
+        $config->set('URI.AllowedSchemes', ['http' => true, 'https' => true, 'mailto' => true]);
+
         // Enable auto-paragraphing for better formatting
         $config->set('AutoFormat.AutoParagraph', true);
         $config->set('AutoFormat.RemoveEmpty', true);
-        
-        // Convert line breaks to <br> tags in paragraphs
+
+        // Disable linkification
         $config->set('AutoFormat.Linkify', false);
-        
-        // Remove Microsoft Word specific elements and scripts
-        $config->set('Core.RemoveInvalidImg', true);
-        $config->set('Core.HiddenElements', ['script' => true, 'style' => true]);
-        
+
         // Cache configuration for better performance
         $config->set('Cache.SerializerPath', sys_get_temp_dir());
-        
+
         $this->purifier = new HTMLPurifier($config);
     }
     

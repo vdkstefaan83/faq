@@ -145,7 +145,7 @@
         </div>
     </div>
     
-    <form method="POST" class="space-y-6">
+    <form method="POST" class="space-y-6" id="create-article-form">
         <div>
             <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">Article Title</label>
             <input type="text" id="title" name="title" required 
@@ -326,12 +326,19 @@ document.addEventListener('DOMContentLoaded', function() {
             editor.on('change keyup', function() {
                 // Save draft functionality could be added here
             });
-            
+
             editor.on('paste', function(e) {
                 setTimeout(function() {
                     showToast('Content pasted and cleaned from Word formatting!', 'success');
                 }, 200);
             });
+        }
+    });
+
+    // Handle form submission to ensure TinyMCE content is saved
+    document.getElementById('create-article-form').addEventListener('submit', function(e) {
+        if (tinymce.get('content')) {
+            tinymce.get('content').save();
         }
     });
 });
