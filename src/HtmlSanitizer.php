@@ -39,9 +39,9 @@ class HtmlSanitizer
         // Convert line breaks to <br> tags in paragraphs
         $config->set('AutoFormat.Linkify', false);
         
-        // Remove Microsoft Word specific elements
-        $config->set('HTML.RemoveForeignElements', true);
-        $config->set('HTML.RemoveScriptContents', true);
+        // Remove Microsoft Word specific elements and scripts
+        $config->set('Core.RemoveInvalidImg', true);
+        $config->set('Core.HiddenElements', ['script' => true, 'style' => true]);
         
         // Cache configuration for better performance
         $config->set('Cache.SerializerPath', sys_get_temp_dir());
