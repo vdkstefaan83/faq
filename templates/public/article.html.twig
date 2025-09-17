@@ -35,7 +35,7 @@
         <!-- Article Content -->
         <div class="px-8 py-12">
             <div class="prose prose-lg prose-primary max-w-none">
-                <div class="text-gray-700 leading-relaxed text-lg">
+                <div class="text-gray-700 leading-relaxed text-lg article-content">
                     {{ article.content|raw }}
                 </div>
             </div>
@@ -107,6 +107,111 @@ function showToast(message, type) {
 </script>
 
 <style>
+.article-content ul {
+    list-style-type: disc;
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+    padding-left: 0;
+}
+
+.article-content ol {
+    list-style-type: decimal;
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+    padding-left: 0;
+}
+
+.article-content li {
+    margin-bottom: 0.5rem;
+    padding-left: 0.25rem;
+}
+
+.article-content ul ul,
+.article-content ol ol {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.article-content p {
+    margin-bottom: 1rem;
+}
+
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4,
+.article-content h5,
+.article-content h6 {
+    font-weight: bold;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.article-content h1 { font-size: 2rem; }
+.article-content h2 { font-size: 1.75rem; }
+.article-content h3 { font-size: 1.5rem; }
+.article-content h4 { font-size: 1.25rem; }
+.article-content h5 { font-size: 1.125rem; }
+.article-content h6 { font-size: 1rem; }
+
+.article-content strong,
+.article-content b {
+    font-weight: bold;
+}
+
+.article-content em,
+.article-content i {
+    font-style: italic;
+}
+
+.article-content blockquote {
+    border-left: 4px solid #3b82f6;
+    padding-left: 1rem;
+    margin: 1rem 0;
+    font-style: italic;
+    color: #6b7280;
+}
+
+.article-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+
+.article-content th,
+.article-content td {
+    border: 1px solid #d1d5db;
+    padding: 0.5rem;
+    text-align: left;
+}
+
+.article-content th {
+    background-color: #f9fafb;
+    font-weight: bold;
+}
+
+.article-content pre {
+    background-color: #f3f4f6;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+}
+
+.article-content code {
+    background-color: #f3f4f6;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+}
+
+.article-content hr {
+    border: none;
+    border-top: 1px solid #d1d5db;
+    margin: 2rem 0;
+}
+
 @media print {
     .no-print { display: none; }
     body { background: white; }
